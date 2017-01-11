@@ -1,5 +1,5 @@
-from src.Groundplan import Groundplan
-from src.GroundplanFrame import GroundplanFrame
+from Groundplan import Groundplan
+from GroundplanFrame import GroundplanFrame
 from districtobjects.Mansion import Mansion
 from districtobjects.Bungalow import Bungalow
 from districtobjects.FamilyHome import FamilyHome
