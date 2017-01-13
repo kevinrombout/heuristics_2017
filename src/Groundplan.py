@@ -52,9 +52,9 @@ class Groundplan(object):
      
     def removeResidence(self, residence):
         if(residence.getType() == "FamilyHome"): self.number_of_familyhomes -= 1
-        elif(residence.get_type() == "Bungalow"): self.number_of_bungalows -= 1
-        elif(residence.get_type() == "Mansion"): self.number_of_mansions -= 1
-        residence.remove(residence)
+        elif(residence.getType() == "Bungalow"): self.number_of_bungalows -= 1
+        elif(residence.getType() == "Mansion"): self.number_of_mansions -= 1
+        self.residences.remove(residence)
     
     def addWaterbody(self, waterbody): self.waterbodies.append(waterbody)
     
@@ -69,20 +69,24 @@ class Groundplan(object):
            (float(self.number_of_familyhomes) / self.number_of_houses) < self.MINIMUM_FAMILYHOMES_PERCENTAGE or
            (float(self.number_of_bungalows) / self.number_of_houses) < self.MINIMUM_BUNGALOW_PERCENTAGE or
            (float(self.number_of_mansions) / self.number_of_houses) < self.MINIMUM_MANSION_PERCENTAGE):
+            print("numbers wrong")
             return False
         else:
             waterbody_surface = 0
             
             for waterbody in self.waterbodies:
                 if(not self.correctlyPlaced(waterbody)):
+                    print("water wrong")
                     return False
                 else:
                     waterbody_surface += waterbody.getSurface()
             
             if((float(waterbody_surface) / self.AREA) < self.MINIMUM_WATER_PERCENTAGE):
+                print("water percentage wrong")
                 return False
             for residence in self.residences:
                 if(not self.correctlyPlaced(residence)):
+                    print("residences wrong")
                     return False
             return True
         
@@ -99,13 +103,14 @@ class Groundplan(object):
                placeable.leftEdge() < placeable.getminimumClearance()):
                 return False
         for waterbody in self.waterbodies:
-            if(not (isinstance(placeable, Waterbody)) and
-               placeable.topEdge() < waterbody.bottomEdge() and
-               placeable.rightEdge() < waterbody.leftEdge() and
-               placeable.bottomEdge() > waterbody.topEdge() and
-               placeable.leftEdge() > waterbody.rightEdge()):
+            if((not isinstance(placeable, Waterbody)) and 
+                placeable.topEdge() < waterbody.bottomEdge() and
+                placeable.rightEdge() > waterbody.leftEdge() and
+                placeable.bottomEdge() > waterbody.topEdge() and
+                placeable.leftEdge() < waterbody.rightEdge()):
                 return False
         for residence in self.residences:
+            distance = self.getDistance(residence, placeable)
             if(placeable != residence and
                placeable.topEdge() < residence.bottomEdge() and
                placeable.rightEdge() < residence.leftEdge() and
@@ -114,7 +119,8 @@ class Groundplan(object):
                 return False
             elif(isinstance(placeable, Residence) and
                  placeable != residence and
-                 self.getDistance(residence, placeable) < placeable.getminimumClearance()):
+                 distance < residence.getminimumClearance() and
+                 distance < placeable.getminimumClearance()):
                 return False
         if(self.PLAYGROUND):
             for playground in self.playgrounds:
@@ -130,6 +136,8 @@ class Groundplan(object):
                         return False
                     elif(self.getDistance(playground, placeable) < self.MAXIMUM_PLAYGROUND_DISTANCE):
                         return True
+            if (not isinstance(placeable, Waterbody)):
+                return False
         return True
 
     def getDistance(self, residence, other):
@@ -154,21 +162,21 @@ class Groundplan(object):
              residence.bottomEdge() - other.topEdge() and
              residence.leftEdge() < other.rightEdge()):
             return other.topEdge() - residence.bottomEdge()
-        elif(residence.topEdge() < other.bottomEdge() and
-             residence.rightEdge() > other.leftEdge()):
-            return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
-                             math.pow(other.topEdge() - residence.bottomEdge(), 2))
-        elif(residence.topEdge() < other.bottomEdge() and
-             residence.leftEdge() < other.rightEdge()):
+        elif(residence.bottomEdge() < other.topEdge() and
+             residence.rightEdge() < other.leftEdge()):
             return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
-                             math.pow(other.topEdge() - residence.bottomEdge(), 2))
-        elif(residence.rightEdge() > other.leftEdge() and
-             residence.bottomEdge() > other.topEdge()):
+                             math.pow(other.bottomEdge() - residence.topEdge(), 2))
+        elif(residence.bottomEdge() < other.topEdge() and
+             residence.leftEdge() > other.rightEdge()):
             return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
+                             math.pow(other.bottomEdge() - residence.topEdge(), 2))
+        elif(residence.rightEdge() < other.leftEdge() and
+             residence.topEdge() > other.bottomEdge()):
+            return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
                              math.pow(residence.topEdge() - other.bottomEdge(), 2));
-        elif(residence.bottomEdge() > other.topEdge() and
-             residence.leftEdge() < other.rightEdge()):
-            return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
+        elif(residence.topEdge() > other.bottomEdge() and
+             residence.leftEdge() > other.rightEdge()):
+            return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
                              math.pow(residence.topEdge() - other.bottomEdge(), 2))
 
     def getPlanValue(self):
