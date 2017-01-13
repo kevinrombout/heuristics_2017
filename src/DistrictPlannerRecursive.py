@@ -8,7 +8,7 @@ from districtobjects.Waterbody import Waterbody
 from random import random
 
 class DistrictPlanner(object):
-    NUMBER_OF_HOUSES = 40
+    NUMBER_OF_HOUSES = 100
     PLAYGROUND = True
     FIRST_HOME_X = 112
     FIRST_HOME_Y = 90
@@ -47,28 +47,100 @@ class DistrictPlanner(object):
 
 
     def initFirstHome(self):
-        mansion = self.addToGroundPlan('FamilyHome', self.FIRST_HOME_X, self.FIRST_HOME_Y)
+        residence = self.addToGroundPlan('FamilyHome', self.FIRST_HOME_X, self.FIRST_HOME_Y)
+        if (residence != False):
+            self.addHomes(residence)
+
         return
 
 
-    def addHomes(self, mansion):
-        if (self.addToGroundPlan(type, x, y)):
-            self.addHomes(mansion)
+    def addHomes(self, residence):
+
+        if (len(self.groundPlan.residences) == self.NUMBER_OF_HOUSES):
+            return
+
+        x,y = self.getCoordinatesUp(residence)
+        newResidence = self.addToGroundPlan('FamilyHome', x, y)
+
+        if (newResidence):
+            self.addHomes(newResidence)        
         else:
             return
 
+        x,y = self.getCoordinatesRight(residence)
+        newResidence = self.addToGroundPlan('FamilyHome', x, y)
 
-    def checkSpotUp(self):
-        pass
+        if (newResidence):
+            self.addHomes(newResidence)        
+        else:
+            return
 
-    def checkSpotRight(self):
-        pass
+        x,y = self.getCoordinatesDown(residence)
+        newResidence = self.addToGroundPlan('FamilyHome', x, y)
 
-    def checkSpotDown(self):
-        pass
+        if (newResidence):
+            self.addHomes(newResidence)        
+        else:
+            return
 
-    def checkSpotLeft(self):
-        pass
+        x,y = self.getCoordinatesLeft(residence)
+        newResidence = self.addToGroundPlan('FamilyHome', x, y)
+
+        if (newResidence):
+            self.addHomes(newResidence)        
+
+        return
+
+
+
+    def getCoordinatesUp(self, residence):
+        print residence.getType()
+        x = residence.getX()
+        y = residence.getY() - residence.getminimumClearance() - residence.getHeight()
+        return x,y
+
+    def getCoordinatesRight(self, residence):
+        x = residence.getX() + residence.getWidth() + residence.getminimumClearance() + residence.getminimumClearance()
+        y = residence.getY()
+        return x,y
+
+    def getCoordinatesDown(self, residence):
+        x = residence.getX()
+        y = residence.getY() + residence.getminimumClearance() + residence.getHeight()
+        return x,y
+
+    def getCoordinatesLeft(self, residence):
+        x = residence.getX() - residence.getminimumClearance() - residence.getHeight() 
+        y = residence.getY()
+        return x,y
+
+    # Add object to map (type)
+    def addToGroundPlan(self, type, x_coordinate, y_coordinate):
+        if (type == 'Mansion'):
+            mansion = Mansion(x_coordinate,y_coordinate)
+            if (self.groundPlan.correctlyPlaced(mansion)):
+                self.groundPlan.addResidence(mansion)
+                return mansion
+        elif (type == 'Bungalow'):
+            bungalow = Bungalow(x_coordinate,y_coordinate)
+            if (self.groundPlan.correctlyPlaced(bungalow)):
+                self.groundPlan.addResidence(bungalow)
+                return bungalow
+            if (self.groundPlan.correctlyPlaced(bungalow.flip())):
+                self.groundPlan.addResidence(bungalow)
+                return bungalow
+
+        elif (type == 'FamilyHome'):
+            familyHome = FamilyHome(x_coordinate,y_coordinate)        
+            if (self.groundPlan.correctlyPlaced(familyHome)):
+                self.groundPlan.addResidence(familyHome)
+                return familyHome
+            if (self.groundPlan.correctlyPlaced(familyHome.flip())):
+                self.groundPlan.addResidence(familyHome)
+                return familyHome
+
+        # break out of recursion                
+        return False
 
 
     def addPlaygrounds(self):
@@ -101,33 +173,6 @@ class DistrictPlanner(object):
         return
 
 
-    # Add object to map (type)
-    def addToGroundPlan(self, type, x_coordinate, y_coordinate):
-        if (type == 'Mansion'):
-            mansion = Mansion(x_coordinate,y_coordinate)
-            if (self.groundPlan.correctlyPlaced(mansion)):
-                self.groundPlan.addResidence(mansion)
-                return mansion
-
-        elif (type == 'Bungalow'):
-            bungalow = Bungalow(x_coordinate,y_coordinate)
-            if (self.groundPlan.correctlyPlaced(bungalow)):
-                self.groundPlan.addResidence(bungalow)
-                return True
-            if (self.groundPlan.correctlyPlaced(bungalow.flip())):
-                self.groundPlan.addResidence(bungalow)
-                return bungalow
-
-        elif (type == 'FamilyHome'):
-            familyHome = FamilyHome(x_coordinate,y_coordinate)        
-            if (self.groundPlan.correctlyPlaced(familyHome)):
-                self.groundPlan.addResidence(familyHome)
-                return True
-            if (self.groundPlan.correctlyPlaced(familyHome.flip())):
-                self.groundPlan.addResidence(familyHome)
-                return familyHome
-
-        return False
 
     def checkSecondMinDistance(self,groundPlan,minimumIndex,minimumValue, residences, clearanceList):
         clearanceList.pop(minimumIndex)
