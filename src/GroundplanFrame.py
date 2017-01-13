@@ -1,4 +1,4 @@
-from tkinter import *
+from Tkinter import *
 
 class GroundplanFrame(object):
     MARGINLEFT = 25
@@ -22,7 +22,7 @@ class GroundplanFrame(object):
                              bg="white", 
                              width=self.plan.getWidth()*self.SCALE, 
                              height=self.plan.getHeight()*self.SCALE,
-                             cursor="PLUS")
+                             cursor="plus")
         
         self.canvas.bind("<Button-1>", self.processMouseEvent)
         self.canvas.focus_set()

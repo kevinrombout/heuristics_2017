@@ -10,6 +10,8 @@ from random import random
 class DistrictPlanner(object):
     NUMBER_OF_HOUSES = 40
     PLAYGROUND = True
+    FIRST_HOME_X = 112
+    FIRST_HOME_Y = 90
     
     def __init__(self):
         self.groundPlan = Groundplan(self.NUMBER_OF_HOUSES, True)
@@ -26,10 +28,11 @@ class DistrictPlanner(object):
         # place playground & water
         self.addPlaygrounds()
         self.addWaterbodies()
+        self.initFirstHome()
 
         # add homes & move homes
-        self.addHomes()
-        self.moveHouses()
+        # self.addHomes()
+        # self.moveHouses()
 
         if(self.groundPlan.isValid()): 
             print ("groundPlan is valid")
@@ -38,101 +41,91 @@ class DistrictPlanner(object):
         
         print ("Value of groundPlan is:", self.groundPlan.getPlanValue())
         
-        self.printResults()
+        # self.printResults()
 
         return
 
+
+    def initFirstHome(self):
+        mansion = self.addToGroundPlan('FamilyHome', self.FIRST_HOME_X, self.FIRST_HOME_Y)
+        return
+
+
+    def addHomes(self, mansion):
+        if (self.addToGroundPlan(type, x, y)):
+            self.addHomes(mansion)
+        else:
+            return
+
+
+    def checkSpotUp(self):
+        pass
+
+    def checkSpotRight(self):
+        pass
+
+    def checkSpotDown(self):
+        pass
+
+    def checkSpotLeft(self):
+        pass
+
+
     def addPlaygrounds(self):
-        x = 40
-        y = self.groundPlan.HEIGHT - 50 - 30
+        x = 90
+        y = 70
         self.groundPlan.addPlayground(Playground(x, y).flip())
-        x = self.groundPlan.WIDTH - 60
-        y = 50
-        self.groundPlan.addPlayground(Playground(x, y).flip())
+        # x = self.groundPlan.WIDTH - 60
+        # y = 50
+        # self.groundPlan.addPlayground(Playground(x, y).flip())
         return
 
     def addWaterbodies(self):
-        width = 80
-        height = 40
+        width = 21
+        height = 83.5
         x = 0
         y = 0
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-        width = 15
-        height = 15
-        x = self.groundPlan.WIDTH - 15
+
+        x = 0
+        y = 86.5
+        self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
+
+        x = 179
         y = 0
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-        width = 15
-        height = 15
-        x = 0
-        y = self.groundPlan.HEIGHT - 15
-        self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-        width = 80
-        height = 40
-        x = self.groundPlan.WIDTH - 80
-        y = self.groundPlan.HEIGHT - 40
+
+        x = 179
+        y = 86.5
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
         return
 
-    def addHomes(self):
-        while self.groundPlan.numberOfHouses() <= self.NUMBER_OF_HOUSES:
-            if (self.groundPlan.number_of_mansions < (self.NUMBER_OF_HOUSES * self.groundPlan.MINIMUM_MANSION_PERCENTAGE)):
-                self.addToGroundPlan('Mansion')
-            elif (self.groundPlan.number_of_bungalows < (self.NUMBER_OF_HOUSES * self.groundPlan.MINIMUM_BUNGALOW_PERCENTAGE)):
-                self.addToGroundPlan('Bungalow')
-            elif (self.groundPlan.number_of_familyhomes < (self.NUMBER_OF_HOUSES * self.groundPlan.MINIMUM_FAMILYHOMES_PERCENTAGE) + 1):
-                self.addToGroundPlan('FamilyHome')
-            else:
-                break
-        return
 
     # Add object to map (type)
-    def addToGroundPlan(self, type):
+    def addToGroundPlan(self, type, x_coordinate, y_coordinate):
         if (type == 'Mansion'):
-            x = random() * (self.groundPlan.WIDTH - 11)
-            y = random() * (self.groundPlan.HEIGHT - 10.5)  
-
-            mansion = Mansion(x,y)
+            mansion = Mansion(x_coordinate,y_coordinate)
             if (self.groundPlan.correctlyPlaced(mansion)):
                 self.groundPlan.addResidence(mansion)
-                return True
+                return mansion
 
         elif (type == 'Bungalow'):
-            x = random() * (self.groundPlan.WIDTH - 10)
-            y = random() * (self.groundPlan.HEIGHT - 7.5)
-
-            bungalow = Bungalow(x, y).flip()
+            bungalow = Bungalow(x_coordinate,y_coordinate)
             if (self.groundPlan.correctlyPlaced(bungalow)):
                 self.groundPlan.addResidence(bungalow)
                 return True
+            if (self.groundPlan.correctlyPlaced(bungalow.flip())):
+                self.groundPlan.addResidence(bungalow)
+                return bungalow
 
         elif (type == 'FamilyHome'):
-            x = random() * (self.groundPlan.WIDTH - 8)
-            y = random() * (self.groundPlan.HEIGHT - 8)
-
-            familyHome = FamilyHome(x, y)
+            familyHome = FamilyHome(x_coordinate,y_coordinate)        
             if (self.groundPlan.correctlyPlaced(familyHome)):
                 self.groundPlan.addResidence(familyHome)
                 return True
-
-        # elif (type == 'playground'):
-        #     x = random() * (self.groundPlan.WIDTH - 100)
-        #     y = random() * (self.groundPlan.HEIGHT - 100)
-
-
-        #     playground = Playground(x, y)
-        #     if (self.groundPlan.correctlyPlaced(playground)):
-        #         self.groundPlan.addPlayground(playground)
-
-        # elif (type == 'waterbody'):    
-        #     width = random() * 20 + 20
-        #     height = random() * 30 + 30
-        #     x = 10 + random() * (self.groundPlan.WIDTH - width - 10)
-        #     y = 10 + random() * (self.groundPlan.HEIGHT - height - 10)
-
-        #     waterbody = Waterbody(x, y, width, height)
-        #     if (self.groundPlan.correctlyPlaced(waterbody)):
-        #         self.groundPlan.addWaterbody(waterbody)  
+            if (self.groundPlan.correctlyPlaced(familyHome.flip())):
+                self.groundPlan.addResidence(familyHome)
+                return familyHome
 
         return False
 
