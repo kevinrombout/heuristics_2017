@@ -30,18 +30,19 @@ class GroundplanFrame(object):
         self.text = Text(self.root, bd=4, width=80, height=2)
         
     def setPlan(self):
-        count = 0
+        count = 1
         for residence in self.plan.getResidences():
-            self.canvas.create_rectangle(residence.getX()*self.SCALE, 
-                                         residence.getY()*self.SCALE,
-                                         (residence.getX()+residence.getWidth())*self.SCALE,
-                                         (residence.getY()+residence.getHeight())*self.SCALE,
-                                         fill=residence.getColor())
-            self.canvas.create_text(residence.getX()*self.SCALE, 
-                                         residence.getY()*self.SCALE,
-                                         text=count)            
-            # self.canvas.create_text(residence.getX(),residence.getY(), text=count)
-            count = count+1
+            if count <= 100:
+                self.canvas.create_rectangle(residence.getX()*self.SCALE, 
+                                             residence.getY()*self.SCALE,
+                                             (residence.getX()+residence.getWidth())*self.SCALE,
+                                             (residence.getY()+residence.getHeight())*self.SCALE,
+                                             fill=residence.getColor())
+                self.canvas.create_text(residence.getX()*self.SCALE, 
+                                             residence.getY()*self.SCALE,
+                                             text=count)            
+                # self.canvas.create_text(residence.getX(),residence.getY(), text=count)
+                count = count+1
                 
         for waterbody in self.plan.getWaterbodies():
             self.canvas.create_rectangle(waterbody.getX()*self.SCALE, 

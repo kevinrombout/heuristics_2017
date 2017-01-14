@@ -9,9 +9,9 @@ class Groundplan(object):
     AREA                            = WIDTH * HEIGHT
     MINIMUM_WATER_PERCENTAGE        = 0.2
     MAXIMUM_WATER_BODIES            = 4
-    MINIMUM_FAMILYHOMES_PERCENTAGE  = 0.50
-    MINIMUM_BUNGALOW_PERCENTAGE     = 0.30
-    MINIMUM_MANSION_PERCENTAGE      = 0.20
+    MINIMUM_FAMILYHOMES_PERCENTAGE  = 0.1
+    MINIMUM_BUNGALOW_PERCENTAGE     = 0
+    MINIMUM_MANSION_PERCENTAGE      = 0
     MAXIMUM_PLAYGROUND_DISTANCE     = 50
     
     def __init__(self, number_of_houses, playground):
