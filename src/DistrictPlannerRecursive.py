@@ -173,52 +173,6 @@ class DistrictPlanner(object):
         return
 
 
-
-    def checkSecondMinDistance(self,groundPlan,minimumIndex,minimumValue, residences, clearanceList):
-        clearanceList.pop(minimumIndex)
-        firstHouse = residences[minimumIndex]
-        if minimumValue not in clearanceList:
-            return firstHouse
-        scndMinimumIndex = clearanceList.index(minimumValue)
-        scndHouse = residences[scndMinimumIndex]
-        groundPlan.removeResidence(scndHouse)        
-        firstMin = groundPlan.getMinimumDistance(firstHouse)
-        groundPlan.addResidence(scndHouse)
-        groundPlan.removeResidence(firstHouse)
-        scndMin = groundPlan.getMinimumDistance(scndHouse)
-        groundPlan.addResidence(firstHouse)
-        if firstMin < scndMin:
-            return firstHouse
-        else :
-            return scndHouse
-           
-    def moveHouses(self):
-        busy = True        
-        j = 0
-        while busy:
-            residences = self.groundPlan.getResidences()
-            numberOfHouses = len(residences)
-            if numberOfHouses == 0:
-                return
-            clearanceList = []
-            for i in range(numberOfHouses):
-                clearanceList.append(self.groundPlan.getMinimumDistance(residences[i]))
-            minimumValue = min(clearanceList)
-            minimumIndex = clearanceList.index(minimumValue)            
-            remHouse = self.checkSecondMinDistance(self.groundPlan, minimumIndex, minimumValue, residences, clearanceList)
-            self.groundPlan.removeResidence(remHouse) 
-            if (j> 50 and remHouse.getType == "FamilyHome"):
-                return
-            elif j > 1000:
-                return
-            else:
-                m = 0
-                while not(self.addToGroundPlan(remHouse.getType())):
-                   m = m+1
-                # if m == 50:
-                #     return
-                j = j+1
-
     def printResults(self):
         residences = self.groundPlan.getResidences()
         numberOfHouses = len(residences)
