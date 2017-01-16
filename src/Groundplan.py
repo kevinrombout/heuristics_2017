@@ -42,7 +42,7 @@ class Groundplan(object):
        
     def getPlaygrounds(self): return self.playgrounds
      
-    def numberOfHouses(self): return self.number_of_houses
+    def numberOfHouses(self): return len(self.residences)
     
     def addResidence(self, residence):   
         if(residence.getType() == "FamilyHome"): self.number_of_familyhomes += 1
@@ -113,15 +113,15 @@ class Groundplan(object):
             distance = self.getDistance(residence, placeable)
             if(placeable != residence and
                placeable.topEdge() < residence.bottomEdge() and
-               placeable.rightEdge() < residence.leftEdge() and
+               placeable.rightEdge() > residence.leftEdge() and
                placeable.bottomEdge() > residence.topEdge() and
-               placeable.leftEdge() > residence.rightEdge()):
+               placeable.leftEdge() < residence.rightEdge()):
                 return False
             elif(isinstance(placeable, Residence) and
                  placeable != residence and
-                 distance < residence.getminimumClearance() and
-                 distance < placeable.getminimumClearance()):
-                return False
+                 (distance < residence.getminimumClearance() or
+                 distance < placeable.getminimumClearance())):
+               return False
         if(self.PLAYGROUND):
             for playground in self.playgrounds:
                 if(placeable != playground and
@@ -159,26 +159,25 @@ class Groundplan(object):
              residence.leftEdge() < other.rightEdge()):
             return residence.topEdge() - other.bottomEdge()
         elif(residence.rightEdge() > other.leftEdge() and
-             residence.bottomEdge() - other.topEdge() and
+             residence.bottomEdge() < other.topEdge() and
              residence.leftEdge() < other.rightEdge()):
             return other.topEdge() - residence.bottomEdge()
-        elif(residence.bottomEdge() < other.topEdge() and
-             residence.rightEdge() < other.leftEdge()):
-            return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
-                             math.pow(other.bottomEdge() - residence.topEdge(), 2))
-        elif(residence.bottomEdge() < other.topEdge() and
-             residence.leftEdge() > other.rightEdge()):
+        elif(residence.topEdge() < other.bottomEdge() and
+             residence.rightEdge() > other.leftEdge()):
             return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
-                             math.pow(other.bottomEdge() - residence.topEdge(), 2))
-        elif(residence.rightEdge() < other.leftEdge() and
-             residence.topEdge() > other.bottomEdge()):
+                             math.pow(other.topEdge() - residence.bottomEdge(), 2))
+        elif(residence.topEdge() < other.bottomEdge() and
+             residence.leftEdge() < other.rightEdge()):
             return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
+                             math.pow(other.topEdge() - residence.bottomEdge(), 2))
+        elif(residence.rightEdge() > other.leftEdge() and
+             residence.bottomEdge() > other.topEdge()):
+            return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
                              math.pow(residence.topEdge() - other.bottomEdge(), 2));
-        elif(residence.topEdge() > other.bottomEdge() and
-             residence.leftEdge() > other.rightEdge()):
-            return math.sqrt(math.pow(residence.leftEdge() - other.rightEdge(), 2) + 
+        elif(residence.bottomEdge() > other.topEdge() and
+             residence.leftEdge() < other.rightEdge()):
+            return math.sqrt(math.pow(other.leftEdge() - residence.rightEdge(), 2) + 
                              math.pow(residence.topEdge() - other.bottomEdge(), 2))
-
     def getPlanValue(self):
         planValue = 0;
         for residence in self.residences:
