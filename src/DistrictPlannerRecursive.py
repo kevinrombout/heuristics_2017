@@ -7,21 +7,23 @@ from districtobjects.Playground import Playground
 from districtobjects.Waterbody import Waterbody
 from random import random
 
-class DistrictPlanner(object):
-    NUMBER_OF_HOUSES = 100
-    PLAYGROUND = True
-    FIRST_HOME_X = 112
-    FIRST_HOME_Y = 90
-    
-    def __init__(self):
+class DistrictPlannerRecursive(object):
+    NUMBER_OF_HOUSES = 150
+    PLAYGROUND       = True
+
+    FIRST_HOME_X     = 0
+    FIRST_HOME_Y     = 0
+
+    SHOW_RESULTS     = False;
+
+
+    def __init__(self, x, y, showResult):
+        self.FIRST_HOME_X = x
+        self.FIRST_HOME_Y = y
+        self.SHOW_RESULTS = showResult
+
         self.groundPlan = Groundplan(self.NUMBER_OF_HOUSES, True)
 
-        
-        self.developGroundplan()
-        
-        self.frame = GroundplanFrame(self.groundPlan)
-        self.frame.setPlan()
-        self.frame.root.mainloop()
 
     def developGroundplan(self):
 
@@ -34,16 +36,24 @@ class DistrictPlanner(object):
         if (firstResidence != False):
             self.addHomes(firstResidence)
 
-        if(self.groundPlan.isValid()): 
-            print ("groundPlan is valid")
-        else: 
-            print ("groundPlan is invalid")
+        if (self.SHOW_RESULTS) :
+            if(self.groundPlan.isValid()): 
+                print ("groundPlan is valid")
+            else: 
+                print ("groundPlan is invalid")
         
-        print ("Value of groundPlan is:", self.groundPlan.getPlanValue())
+            print ("Value of groundPlan is:", self.groundPlan.getPlanValue())
         
-        self.printResults()
+            self.printResults()
 
-        return
+        planValue = self.groundPlan.getPlanValue()
+
+        if (self.SHOW_RESULTS) :
+            self.frame = GroundplanFrame(self.groundPlan)
+            self.frame.setPlan()
+            self.frame.root.mainloop()
+
+        return planValue
 
 
     def initFirstHome(self):
@@ -53,23 +63,21 @@ class DistrictPlanner(object):
     # Add homes recursively based on initial first placed home
     def addHomes(self, residence):
 
-        if (self.checkEnd()):
-            print "STOP"
-            return
-
         # PLACE RESIDENCE UP
         x,y = self.getCoordinatesUp(residence)
         newResidence = self.addToGroundPlan('FamilyHome', x, y)
 
         if (newResidence):
-            self.addHomes(newResidence)        
+            self.addHomes(newResidence)
+
 
         # PLACE RESIDENCE UP - RIGHT
         x,y = self.getCoordinatesUpRight(residence)
         newResidence = self.addToGroundPlan('FamilyHome', x, y)
 
         if (newResidence):
-            self.addHomes(newResidence)                    
+            self.addHomes(newResidence)
+
 
         # PLACE RESIDENCE RIGHT
         x,y = self.getCoordinatesRight(residence)
@@ -86,6 +94,7 @@ class DistrictPlanner(object):
 
         if (newResidence):
             self.addHomes(newResidence)        
+
 
         # PLACE RESIDENCE DOWN
         x,y = self.getCoordinatesDown(residence)
@@ -120,27 +129,24 @@ class DistrictPlanner(object):
 
 
     def checkEnd(self):
-        if (len(self.groundPlan.residences) >= self.NUMBER_OF_HOUSES):
+        if (self.groundPlan.numberOfHouses() >= self.NUMBER_OF_HOUSES):
             return True    
         return False
 
     # UP - LEFT
     def getCoordinatesUpLeft(self, residence):
-        print residence.getType()
         x = residence.getX() - residence.getminimumClearance() - residence.getminimumClearance() - residence.getWidth()
         y = residence.getY() - residence.getminimumClearance() - residence.getminimumClearance() - residence.getHeight()
         return x,y        
 
     # UP
     def getCoordinatesUp(self, residence):
-        print residence.getType()
         x = residence.getX()
         y = residence.getY() - residence.getminimumClearance() - residence.getminimumClearance() - residence.getHeight()
         return x,y
 
     # UP - RIGHT
     def getCoordinatesUpRight(self, residence):
-        print residence.getType()
         x = residence.getX() + residence.getWidth() + residence.getminimumClearance() + residence.getminimumClearance()
         y = residence.getY() - residence.getminimumClearance() - residence.getminimumClearance() - residence.getHeight()
         return x,y        
@@ -178,6 +184,9 @@ class DistrictPlanner(object):
 
     # Add object to map (type)
     def addToGroundPlan(self, type, x_coordinate, y_coordinate):
+        if (self.checkEnd()) :
+            return False
+
         if (type == 'Mansion'):
             mansion = Mansion(x_coordinate,y_coordinate)
             if (self.groundPlan.correctlyPlaced(mansion)):
@@ -197,40 +206,40 @@ class DistrictPlanner(object):
             if (self.groundPlan.correctlyPlaced(familyHome)):
                 self.groundPlan.addResidence(familyHome)
                 return familyHome
-            # if (self.groundPlan.correctlyPlaced(familyHome.flip())):
-            #     self.groundPlan.addResidence(familyHome)
-            #     return familyHome
 
         # residence cant be placed                
         return False
 
 
     def addPlaygrounds(self):
-        x = 90
-        y = 70
+        x = 40
+        y = self.groundPlan.HEIGHT - 50 - 30
         self.groundPlan.addPlayground(Playground(x, y).flip())
-        # x = self.groundPlan.WIDTH - 60
-        # y = 50
-        # self.groundPlan.addPlayground(Playground(x, y).flip())
-        return
+        x = self.groundPlan.WIDTH - 60
+        y = 50
+        self.groundPlan.addPlayground(Playground(x, y).flip())
+        return        
 
     def addWaterbodies(self):
-        width = 21
-        height = 83.5
+        width = 80
+        height = 40
         x = 0
         y = 0
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-
-        x = 0
-        y = 86.5
-        self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-
-        x = 179
+        width = 15
+        height = 15
+        x = self.groundPlan.WIDTH - 15
         y = 0
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
-
-        x = 179
-        y = 86.5
+        width = 15
+        height = 15
+        x = 0
+        y = self.groundPlan.HEIGHT - 15
+        self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
+        width = 80
+        height = 40
+        x = self.groundPlan.WIDTH - 80
+        y = self.groundPlan.HEIGHT - 40
         self.groundPlan.addWaterbody(Waterbody(x, y, width, height))
         return
 
@@ -256,5 +265,45 @@ class DistrictPlanner(object):
         # print(bungalows)
         print(familyHomes)
 
-    
-DistrictPlanner()
+
+###
+ #
+ #  Bereken voor een initiele begincoordinaten van het eerste huisje hoe de huisjes het
+ #  beste verdeeld kunnen worden over de beschikbare grond
+ #
+###  
+X_COR_HOUSE = 140
+Y_COR_HOUSE = 100
+
+planner = DistrictPlannerRecursive(X_COR_HOUSE, Y_COR_HOUSE, True)
+value = planner.developGroundplan()
+print "De waarde van de verdeling bedraagt: ", value;
+
+exit()
+###
+ #
+ #  Ga voor alle mogelijke beginposities (afhankelijk van de grote van het eerste huisje)
+ #  na wat de positie is waarbij de hoogst mogelijke waarde behaald kan worden
+ #
+###  
+LENGTH_AREA  = 170
+WIDTH_AREA   = 200
+
+LENGTH_HOME  = 10
+WIDTH_HOME   = 10
+
+results = []
+highest = [0,0,0]
+
+for i in range(0, WIDTH_AREA, WIDTH_HOME):
+    for j in range(0, LENGTH_AREA, LENGTH_HOME):
+        planner = DistrictPlannerRecursive(i,j, False)
+        value = planner.developGroundplan()
+        res = [i,j,value]
+        if (res[2] > 0) :
+            if (res[2] >= highest[2]) :
+                highest = res
+            results.append(res)
+
+print "alle resultaten:" , results
+print "beste resultaat:" , highest
